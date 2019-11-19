@@ -7,7 +7,7 @@ namespace app\index\controller;
 class Zentao
 {
     //禅道部署域名
-    const ztUrl = 'http://zentao.qqphp.com/';//http://www.testzentao.com/index.php|http://zentao.qqphp.com/
+    const ztUrl = 'http://zentao.qqphp.com/';//http://www.testzentao.com/index.php|http://zentao.qqphp.com|http://www.zendao2.com/index.php
     //禅道登录账户
     const ztAccount = 'admin';
     //禅道登录密码
@@ -18,12 +18,15 @@ class Zentao
     public $sessionAuth = '';
     //接口请求参数
     public $params = array();
+    //session随机数，用于一些加密和验证
+    public $sessionRand = 0;
     //返回结果
     public $returnResult = array(
         'status' => 0,
         'msg'    => '操作失败',
         'result' => array()
     );
+
 
     /**
      * 获取登录sessionId
@@ -108,11 +111,9 @@ class Zentao
     {
         $returnResult = $this->returnResult;
         if (self::requestType == 'GET') {
-            $this->params = [
-                't' => 'json'
-            ];
+            $this->params = [];
             $this->params = array_merge($this->params, $optionalParams);
-            $result       = $this->postUrl(self::ztUrl . '?m=dept&f=manageChild');
+            $result       = $this->postUrl(self::ztUrl . '?m=dept&f=manageChild&t=json');
         } elseif (self::requestType == 'PATH_INFO') {
             $this->params = [];
             $this->params = array_merge($this->params, $optionalParams);
@@ -128,18 +129,141 @@ class Zentao
         return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
     }
 
-    public function uuuuser($optionalParams = [])
+    /**
+     * Desc:获取用户列表
+     * Date:2019/11/19/019
+     */
+    public function groupBrowse($optionalParams = [])
     {
         $this->params = [
             'm' => 'group',
-            'f' => 'browse'
+            'f' => 'browse',
         ];
         $this->params = array_merge($this->params, $optionalParams);
         $result       = $this->getUrl(self::ztUrl);
         $resultData   = json_decode($result);
         $returnResult = $this->returnResult;
-        dump($result);die();
-        return $returnResult;
+        if (strcmp($resultData->status, 'success') == 0) {
+            $resultList = json_decode($resultData->data);
+            $userGroup  = array();
+            foreach ($resultList->groupUsers as $k => $v) {
+                if (count($v)) {
+                    $newUser = [];
+                    foreach ($v as $j => $p) {
+                        $newUser['user_id']   = $k;
+                        $newUser['en_name']   = $j;
+                        $newUser['zh_name']   = $p;
+                        $newUser['role_name'] = $resultList->groups[$k]->name;
+                        $newUser['role_sign'] = $resultList->groups[$k]->role;
+                        $userGroup[]          = $newUser;
+                    }
+                }
+            }
+            $returnResult = array(
+                'status' => 1,
+                'msg'    => '获取成功',
+                'result' => array(
+                    'title'  => $resultList->title,
+                    'groups' => $userGroup
+                )
+            );
+        }
+        return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Desc:添加用户页面
+     * Date:2019/11/19/019
+     */
+    public function userInfo($optionalParams = [])
+    {
+        $this->params = [
+            'm' => 'user',
+            'f' => 'create'
+        ];
+        $this->params = array_merge($this->params, $optionalParams);
+        $result       = $this->getUrl(self::ztUrl);
+        $resultData   = json_decode($result);
+        $returnResult = $this->returnResult;
+        if (strcmp($resultData->status, 'success') == 0) {
+            $resultList = json_decode($resultData->data);
+            unset($resultList->groupList->_empty_);
+            unset($resultList->roleGroup->_empty_);
+            $returnResult      = array(
+                'status' => 1,
+                'msg'    => '获取成功',
+                'result' => array(
+                    'title'     => $resultList->title,
+                    'depts'     => $resultList->depts,
+                    'groupList' => $resultList->groupList,
+                    'roleGroup' => $resultList->roleGroup,
+                )
+            );
+            $this->sessionRand = $resultList->rand;
+        }
+        return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Desc:新增用户
+     * Date:2019/11/19/019
+     */
+    public function userCreate($optionalParams = [])
+    {
+        //获取加密所需随机数
+        $this->userInfo();
+//        $optionalParams = ['dept' => 0, 'account' => 'ly0072', 'password1' => md5('123456' . $this->sessionRand), 'password2' => md5('123456' . $this->sessionRand), 'realname' => '雷永永', 'join' => '2019-11-19', 'role' => 'dev', 'group' => 2, 'email' => 'leiyong208@gmail.com', 'commiter' => 'http://qqphp.com', 'gender' => 'm', 'verifyPassword' => md5(md5(self::ztPassword) . $this->sessionRand)];
+        $returnResult = $this->returnResult;
+        if (self::requestType == 'GET') {
+            $this->params = [];
+            $this->params = array_merge($this->params, $optionalParams);
+            $result       = $this->postUrl(self::ztUrl . '?m=user&f=create&dept=0&t=json');
+        } elseif (self::requestType == 'PATH_INFO') {
+            $this->params = [];
+            $this->params = array_merge($this->params, $optionalParams);
+            $result       = $this->postUrl(self::ztUrl . '/user-create.json');
+        }
+        $resultData = json_decode($result);
+        if (strcmp($resultData->result, 'success') == 0) {
+            $returnResult = array(
+                'status' => 1,
+                'msg'    => '操作成功',
+                'result' => $resultData->message
+            );
+        } else {
+            $returnResult = array(
+                'status' => 0,
+                'msg'    => '操作失败',
+                'result' => $resultData->message
+            );
+        }
+        return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
+    }
+
+    public function productAll($optionalParams = [])
+    {
+        $this->params = [
+            'm' => 'product',
+            'f' => 'all'
+        ];
+        //没法确认总记录条数，当前只能获取未关闭的产品
+        $this->params = array_merge($this->params, $optionalParams);
+        $result       = $this->getUrl(self::ztUrl);
+        $resultData   = json_decode($result);
+        $returnResult = $this->returnResult;
+        if (strcmp($resultData->status, 'success') == 0) {
+            $resultList = json_decode($resultData->data);
+            dump($resultList);die();
+            $returnResult      = array(
+                'status' => 1,
+                'msg'    => '获取成功',
+                'result' => array(
+
+                )
+            );
+            $this->sessionRand = $resultList->rand;
+        }
+        return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
     }
 
     public function getUrl($url, $dump = 0)
@@ -160,7 +284,7 @@ class Zentao
             $url    = $url . '/' . $params . '.json';
         }
         if ($dump) {
-            var_dump($url);
+            var_dump($params);
             die();
         }
         curl_setopt($ch, CURLOPT_COOKIE, $this->sessionAuth);
