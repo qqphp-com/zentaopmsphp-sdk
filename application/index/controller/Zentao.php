@@ -603,9 +603,9 @@ class Zentao
     public function taskFinishInfo($optionalParams = [])
     {
         //模拟数据
-        $optionalParams = [
-            'taskID' => '15'
-        ];
+//        $optionalParams = [
+//            'taskID' => 15
+//        ];
         $this->params = [
             'm' => 'task',
             'f' => 'finish'
@@ -616,12 +616,15 @@ class Zentao
         $returnResult = $this->returnResult;
         if (strcmp($resultData->status, 'success') == 0) {
             $resultList   = json_decode($resultData->data);
-            dump($resultList);die();
             $returnResult = array(
                 'status' => 1,
                 'msg'    => '获取成功',
                 'result' => array(
-                    'title'            => $resultList->title,
+                    'title'   => $resultList->title,
+                    'users'   => $resultList->users,
+                    'task'    => $resultList->task,
+                    'project' => $resultList->project,
+                    'actions' => $resultList->actions,
                 )
             );
         }
@@ -635,27 +638,122 @@ class Zentao
     public function taskFinish($optionalParams = [])
     {
         //模拟数据
-        $optionalParams = [
-
-        ];
+//        $optionalParams = [
+//            'taskID'          => 200,
+//            'currentConsumed' => 1,
+//            'consumed'        => 8,
+//            'assignedTo'      => 'productManager',
+//            'finishedDate'    => '2019-12-07',
+//            'comment'         => '我是李四，我完成了',
+//        ];
         $returnResult = $this->returnResult;
         if (self::requestType == 'GET') {
             $this->params = [
-                'status' => 'wait',
-                'after'  => 'toTaskList',
+                'status' => 'done',
             ];
+            $taskID       = $optionalParams['taskID'];
+            unset($optionalParams['taskID']);
             $this->params = array_merge($this->params, $optionalParams);
-            $result       = $this->postUrl(self::ztUrl . '?m=task&f=create&projectID=' . $optionalParams['project'] . '&t=json');
+            $result       = $this->postUrl(self::ztUrl . '?m=task&f=finish&taskID=' . $taskID . '&t=json');
         } elseif (self::requestType == 'PATH_INFO') {
             $this->params = [
-                'status' => 'wait',
-                'after'  => 'toTaskList',
+                'status' => 'done',
+            ];
+            $taskID       = $optionalParams['taskID'];
+            unset($optionalParams['taskID']);
+            $this->params = array_merge($this->params, $optionalParams);
+            $result       = $this->postUrl(self::ztUrl . '/task-finish-' . $taskID . '.json');
+        }
+        if (strpos($result, 'task-view-' . $taskID . '.json') || strpos($result, 'taskID=' . $taskID)) {
+            $returnResult = array(
+                'status' => 1,
+                'msg'    => '操作成功',
+                'result' => array()
+            );
+        }
+        return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Desc:添加单个BUG可选信息
+     * Date:2019/11/20/020
+     */
+    public function bugCreateInfo($optionalParams = [])
+    {
+        //模拟数据
+        $optionalParams = [
+            'productID' => 1
+        ];
+        $this->params   = [
+            'm' => 'bug',
+            'f' => 'create'
+        ];
+        $this->params   = array_merge($this->params, $optionalParams);
+        $result         = $this->getUrl(self::ztUrl);
+        $resultData     = json_decode($result);
+        $returnResult   = $this->returnResult;
+        if (strcmp($resultData->status, 'success') == 0) {
+            $resultList   = json_decode($resultData->data);
+            $returnResult = array(
+                'status' => 1,
+                'msg'    => '获取成功',
+                'result' => array(
+                    'title'            => $resultList->title,
+                    'productID'        => $resultList->productID,
+                    'productName'      => $resultList->productName,
+                    'projects'         => $resultList->projects,
+                    'moduleOptionMenu' => $resultList->moduleOptionMenu,
+                    'users'            => $resultList->users,
+                    'stories'          => $resultList->stories,
+                    'builds'           => $resultList->builds,
+                )
+            );
+        }
+        return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Desc:添加单个BUG
+     * Date:2019/11/21/021
+     */
+    public function bugCreate($optionalParams = [])
+    {
+        //模拟数据
+        /*$optionalParams = [
+            'product'        => 1,//所属产品ID
+            'module'         => 2,//所属模块ID
+            'project'        => 1,//所属项目ID
+            'openedBuild[1]' => 'trunk',//影响版本【可多个】
+            'assignedTo'     => 'zhangsan',//当前指派【用户账号】
+            'deadline'       => '2019-11-21',//截止日期【格式示例：2019-11-21】
+            'type'           => 'codeerror',//BUG类型【codeerror代码错误|config配置相关|install安装部署|security安全相关|performance性能问题|standard标准规范|automation测试脚本|designdefect设计缺陷|others其他】
+            'os'             => 'windows',//操作系统【all-全部|windows-Windows|win10-Windows 10|win8-Windows 8|win7-Windows 7|vista-Windows Vista|winxp-Windows XP|win2012-Windows 2012|win2008-Windows 2008|win2003-Windows 2003|win2000-Windows 2000|android-Android|ios-IOS|wp8-WP8|wp7-WP7|symbian-Symbian|linux-Linux|freebsd-FreeBSD|osx-OS X|unix-Unix|others-其他】
+            'browser'        => 'ie11',//浏览器【all-全部|ie-IE系列|ie11-IE11|ie10-IE10|ie9-IE9|ie8-IE8|ie7-IE7|ie6-IE6|chrome-Chrome|firefox-firefox系列|firefox4-firefox4|firefox3-firefox3|firefox2-firefox2|opera-opera系列|oprea11-oprea11|oprea10-opera10|opera9-opera9|safari-safari|maxthon-傲游|us-UC|other-其他】
+            'title'          => '添加bug测试三',//BUG标题
+            'color'          => '#2dbdb2',//BUG颜色【示例：#2dbdb2】
+            'severity'       => 2,//严重程度
+            'pri'            => 1,//优先级
+            'steps'          => '重现步骤描述添加bug测试三',//重现步骤描述
+            'story'          => 0,//相关需求
+            'task'           => 0,//相关任务
+            'mailto[1]'      => 'zhangsan',//抄送给
+            'keywords'       => '修改bug',//关键词
+        ];*/
+        $returnResult   = $this->returnResult;
+        if (self::requestType == 'GET') {
+            $this->params = [
+                'status' => 'active'
             ];
             $this->params = array_merge($this->params, $optionalParams);
-            $result       = $this->postUrl(self::ztUrl . '/task-create-' . $optionalParams['project'] . '.json');
+            $result       = $this->postUrl(self::ztUrl . '?m=bug&f=create&productID=' . $optionalParams['product'] . '&t=json');
+        } elseif (self::requestType == 'PATH_INFO') {
+            $this->params = [
+                'status' => 'active'
+            ];
+            $this->params = array_merge($this->params, $optionalParams);
+            $result       = $this->postUrl(self::ztUrl . '/bug-create-' . $optionalParams['product'] . '.json');
         }
         $resultData = json_decode($result);
-        //注意问题、提示错误信息，确依旧返回result=success
         if (strcmp($resultData->result, 'success') == 0) {
             $returnResult = array(
                 'status' => 1,
@@ -667,6 +765,42 @@ class Zentao
                 'status' => 0,
                 'msg'    => '操作失败',
                 'result' => $resultData->message
+            );
+        }
+        return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Desc:获取BUG列表
+     * Date:2019/11/20/020
+     */
+    public function bugBrowse($optionalParams = [])
+    {
+        //模拟数据
+        $optionalParams = [
+            'productID' => 1,
+        ];
+        $this->params = [
+            'm' => 'bug',
+            'f' => 'browse',
+        ];
+        $this->params = array_merge($this->params, $optionalParams);
+        $result       = $this->getUrl(self::ztUrl);
+        $resultData   = json_decode($result);
+        $returnResult = $this->returnResult;
+        if (strcmp($resultData->status, 'success') == 0) {
+            $resultList   = json_decode($resultData->data);
+            dump($resultList);die();
+            $returnResult = array(
+                'status' => 1,
+                'msg'    => '获取成功',
+                'result' => array(
+                    'title'    => $resultList->title,
+                    'projects' => $resultList->projects,
+                    'project'  => $resultList->project,
+                    'products' => $resultList->products,
+                    'tasks'    => $resultList->tasks,
+                )
             );
         }
         return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
