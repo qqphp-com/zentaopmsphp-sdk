@@ -739,7 +739,7 @@ class Zentao
             'mailto[1]'      => 'zhangsan',//抄送给
             'keywords'       => '修改bug',//关键词
         ];*/
-        $returnResult   = $this->returnResult;
+        $returnResult = $this->returnResult;
         if (self::requestType == 'GET') {
             $this->params = [
                 'status' => 'active'
@@ -777,9 +777,10 @@ class Zentao
     public function bugBrowse($optionalParams = [])
     {
         //模拟数据
-        $optionalParams = [
-            'productID' => 1,
-        ];
+//        $optionalParams = [
+//            'productID' => 1,
+//            'branch' => 0,
+//        ];
         $this->params = [
             'm' => 'bug',
             'f' => 'browse',
@@ -790,17 +791,102 @@ class Zentao
         $returnResult = $this->returnResult;
         if (strcmp($resultData->status, 'success') == 0) {
             $resultList   = json_decode($resultData->data);
-            dump($resultList);die();
+            $returnResult = array(
+                'status' => 1,
+                'msg'    => '获取成功',
+                'result' => array(
+                    'title'       => $resultList->title,
+                    'products'    => $resultList->products,
+                    'productID'   => $resultList->productID,
+                    'productName' => $resultList->productName,
+                    'product'     => $resultList->product,
+                    'moduleName'  => $resultList->moduleName,
+                    'modules'     => $resultList->modules,
+                    'browseType'  => $resultList->browseType,
+                    'bugs'        => $resultList->bugs,
+                )
+            );
+        }
+        return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Desc:解决单个BUG可选信息
+     * Date:2019/11/20/020
+     */
+    public function bugResolveInfo($optionalParams = [])
+    {
+        //模拟数据
+//        $optionalParams = [
+//            'bugID' => 5
+//        ];
+        $this->params   = [
+            'm' => 'bug',
+            'f' => 'resolve'
+        ];
+        $this->params   = array_merge($this->params, $optionalParams);
+        $result         = $this->getUrl(self::ztUrl);
+        $resultData     = json_decode($result);
+        $returnResult   = $this->returnResult;
+        if (strcmp($resultData->status, 'success') == 0) {
+            $resultList   = json_decode($resultData->data);
             $returnResult = array(
                 'status' => 1,
                 'msg'    => '获取成功',
                 'result' => array(
                     'title'    => $resultList->title,
-                    'projects' => $resultList->projects,
-                    'project'  => $resultList->project,
                     'products' => $resultList->products,
-                    'tasks'    => $resultList->tasks,
+                    'bug'      => $resultList->bug,
+                    'users'    => $resultList->users,
+                    'builds'   => $resultList->builds,
+                    'actions'  => $resultList->actions
                 )
+            );
+        }
+        return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
+    }
+
+    /**
+     * Desc:解决单个BUG
+     * Date:2019/11/20/020
+     */
+    public function bugResolve($optionalParams = [])
+    {
+        //模拟数据
+        /*$optionalParams = [
+            'bugID'         => 6,
+            'resolution'    => 'bydesign',//解决方案【bydesign设计如此|duplicate重复BUG|external外部原因|fixed已解决|notrepro无法重现|postponed延期处理|willnotfix不予解决】
+            'resolvedBuild' => 'trunk',
+            'resolvedDate'  => '2019-11-22 15:46:16',
+            'assignedTo'    => 'lisi',
+            'comment'       => '啊啊飒飒',
+//            'buildProject' => 1,
+//            'buildName' => '版本7.2.4',
+//            'createBuild' => 1
+        ];*/
+        $returnResult   = $this->returnResult;
+        if (self::requestType == 'GET') {
+            $this->params = [
+                'status' => 'resolved',
+            ];
+            $bugID       = $optionalParams['bugID'];
+            unset($optionalParams['bugID']);
+            $this->params = array_merge($this->params, $optionalParams);
+            $result       = $this->postUrl(self::ztUrl . '?m=bug&f=resolve&bugID=' . $bugID . '&t=json');
+        } elseif (self::requestType == 'PATH_INFO') {
+            $this->params = [
+                'status' => 'resolved',
+            ];
+            $bugID       = $optionalParams['bugID'];
+            unset($optionalParams['bugID']);
+            $this->params = array_merge($this->params, $optionalParams);
+            $result       = $this->postUrl(self::ztUrl . '/bug-resolve-' . $bugID . '.json');
+        }
+        if (strpos($result, 'bug-view-' . $bugID . '.json') || strpos($result, 'bugID=' . $bugID)) {
+            $returnResult = array(
+                'status' => 1,
+                'msg'    => '操作成功',
+                'result' => array()
             );
         }
         return json_encode($returnResult, JSON_UNESCAPED_UNICODE);
