@@ -136,4 +136,87 @@ class Index
         $result = $zentao->productCreate($params);
         return $result;
     }
+
+    /**
+     * Desc:获取项目列表
+     */
+    public function projectAll()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'status' => 'doing'
+        );
+        $result = $zentao->projectAll($params);
+        return $result;
+    }
+
+    /**
+     * Desc:获取项目可选信息
+     */
+    public function projectCreateInfo()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $result = $zentao->projectCreateInfo();
+        return $result;
+    }
+
+
+    /**
+     * Desc:添加单个项目
+     */
+    public function projectCreate()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'name'        => '阿里云项目开发',
+            'code'        => 'alicloud',
+            'begin'       => '2019-11-10',
+            'end'         => '2019-11-11',
+            'days'        => '1',
+            'team'        => '支付宝开发团队',
+            'type'        => 'sprint',
+            'status'      => 'wait',
+            'products[0]' => 0,
+            'plans[0]'    => 0,
+            'desc'        => '阿里云项目开发，挣他一个亿',
+            'acl'         => 'open',
+        );
+        $result = $zentao->projectCreate($params);
+        return $result;
+    }
+
+    /**
+     * Desc:获取任务列表
+     */
+    public function projectTask()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'projectID' => 1,
+            'status'    => 'all',
+            'orderBy'   => 'pri_asc'
+        );
+        $result = $zentao->projectTask($params);
+        return $result;
+    }
+
+    /**
+     * Desc:获取BUG列表
+     */
+    public function bugBrowse()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'productID'  => 1,
+            'branch'     => 0,
+            'browseType' => 'unresolved'
+        );
+        $result = $zentao->bugBrowse($params);
+        return $result;
+    }
 }
