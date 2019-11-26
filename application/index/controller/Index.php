@@ -182,7 +182,7 @@ class Index
             'products[0]' => 0,
             'plans[0]'    => 0,
             'desc'        => '阿里云项目开发，挣他一个亿',
-            'acl'         => 'open',
+            'acl'         => 'open'
         );
         $result = $zentao->projectCreate($params);
         return $result;
@@ -205,6 +205,80 @@ class Index
     }
 
     /**
+     * Desc:添加任务可选信息
+     * Date:2019/11/26/026
+     */
+    public function taskCreateInfo()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'projectID' => 1
+        );
+        $result = $zentao->taskCreateInfo($params);
+        return $result;
+    }
+
+    /**
+     * Desc:添加单个任务
+     */
+    public function taskCreate()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'project'          => 1,
+            'type'             => 'ui',
+            'module'           => 1,
+            'assignedTo[]'     => 'lisi',
+            'testAssignedTo[]' => 'lisi',
+            'color'            => '',
+            'name'             => '测试添加任务2',
+            'pri'              => 2,
+            'estimate'         => 1,
+            'desc'             => '测试添加任务描述测试添加任务描述',
+            'estStarted'       => '2019-11-11',
+            'deadline'         => '2019-11-12',
+            'mailto[1]'        => 'lisi'
+        );
+        $result = $zentao->taskCreate($params);
+        return $result;
+    }
+
+    /**
+     * Desc:完成单个任务可选信息
+     */
+    public function taskFinishInfo()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'taskID' => 20
+        );
+        $result = $zentao->taskFinishInfo($params);
+        return $result;
+    }
+
+    /**
+     * Desc:完成单个任务
+     */
+    public function taskFinish()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'taskID'          => 20,
+            'currentConsumed' => 1,
+            'consumed'        => 2,
+            'assignedTo'      => 'zhangsan',
+            'finishedDate'    => '2019-11-12',
+            'comment'         => 'Complete description,I finished.'
+        );
+        $result = $zentao->taskFinish($params);
+        return $result;
+    }
+
+    /**
      * Desc:获取BUG列表
      */
     public function bugBrowse()
@@ -217,6 +291,87 @@ class Index
             'browseType' => 'unresolved'
         );
         $result = $zentao->bugBrowse($params);
+        return $result;
+    }
+
+    /**
+     * Desc:添加单个BUG可选信息
+     */
+    public function bugCreateInfo()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'productID' => 1
+        );
+        $result = $zentao->bugCreateInfo($params);
+        return $result;
+    }
+
+    /**
+     * Desc:添加单个BUG
+     */
+    public function bugCreate()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'product'        => 1,
+            'module'         => 2,
+            'project'        => 1,
+            'openedBuild[1]' => 'trunk',
+            'assignedTo'     => 'niuqi',
+            'deadline'       => '2019-11-21',
+            'type'           => 'codeerror',
+            'os'             => 'windows',
+            'browser'        => 'ie11',
+            'title'          => '添加bug测试四',
+            'color'          => '#2dbdb2',
+            'severity'       => 2,
+            'pri'            => 1,
+            'steps'          => '重现步骤描述添加bug测试四',
+            'story'          => 0,
+            'task'           => 0,
+            'mailto[1]'      => 'zhangsan',
+            'keywords'       => 'bug4'
+        );
+        $result = $zentao->bugCreate($params);
+        return $result;
+    }
+
+    /**
+     * Desc:解决单个BUG可选信息
+     */
+    public function bugResolveInfo()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'bugID' => 7
+        );
+        $result = $zentao->bugResolveInfo($params);
+        return $result;
+    }
+
+    /**
+     * Desc:解决单个BUG
+     */
+    public function bugResolve()
+    {
+        include_once('../vendor/zentao/zentao.php');
+        $zentao = new \zentao\zentao\zentao();
+        $params = array(
+            'bugID'         => 9,
+            'resolution'    => 'bydesign',
+            'resolvedBuild' => 'trunk',
+            'resolvedDate'  => '2019-11-22',
+            'assignedTo'    => 'lisi',
+            'comment'       => '啊啊飒飒',
+            'buildProject'  => 1,
+            'buildName'     => '版本7.2.5',
+            'createBuild'   => 1
+        );
+        $result = $zentao->bugResolve($params);
         return $result;
     }
 }
