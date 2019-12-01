@@ -47,7 +47,7 @@ class Index
         include_once('../vendor/zentao/zentao.php');
         $zentao = new \zentao\zentao\zentao();
         $params = array(
-            'deptID' => 47
+            'deptID' => 1
         );
         $result = $zentao->companyBrowse($params);
         return $result;
@@ -72,7 +72,7 @@ class Index
         include_once('../vendor/zentao/zentao.php');
         $zentao = new \zentao\zentao\zentao();
         $params = array(
-            'dept'      => 47,
+            'dept'      => 1,
             'account'   => 'Jack8',
             'password1' => '123456',
             'password2' => '123456',
@@ -124,8 +124,8 @@ class Index
             'code'         => 'p100',
             'line'         => 0,
             'PO'           => 'lisi',
-            'QD'           => 'zhangsan',
-            'RD'           => 'wangwu',
+            'QD'           => 'lisi',
+            'RD'           => 'lisi',
             'type'         => 'normal',
             'status'       => 'normal',
             'desc'         => 'product description,product description',
@@ -253,7 +253,7 @@ class Index
         include_once('../vendor/zentao/zentao.php');
         $zentao = new \zentao\zentao\zentao();
         $params = array(
-            'taskID' => 20
+            'taskID' => 10
         );
         $result = $zentao->taskFinishInfo($params);
         return $result;
@@ -267,10 +267,10 @@ class Index
         include_once('../vendor/zentao/zentao.php');
         $zentao = new \zentao\zentao\zentao();
         $params = array(
-            'taskID'          => 20,
+            'taskID'          => 10,
             'currentConsumed' => 1,
             'consumed'        => 2,
-            'assignedTo'      => 'zhangsan',
+            'assignedTo'      => 'lisi',
             'finishedDate'    => '2019-11-12',
             'comment'         => 'Complete description,I finished.'
         );
@@ -332,7 +332,7 @@ class Index
             'steps'          => '重现步骤描述添加bug测试四',
             'story'          => 0,
             'task'           => 0,
-            'mailto[1]'      => 'zhangsan',
+            'mailto[1]'      => 'lisi',
             'keywords'       => 'bug4'
         );
         $result = $zentao->bugCreate($params);
@@ -347,7 +347,7 @@ class Index
         include_once('../vendor/zentao/zentao.php');
         $zentao = new \zentao\zentao\zentao();
         $params = array(
-            'bugID' => 7
+            'bugID' => 6
         );
         $result = $zentao->bugResolveInfo($params);
         return $result;
@@ -361,15 +361,15 @@ class Index
         include_once('../vendor/zentao/zentao.php');
         $zentao = new \zentao\zentao\zentao();
         $params = array(
-            'bugID'         => 9,
+            'bugID'         => 6,
             'resolution'    => 'bydesign',
             'resolvedBuild' => 'trunk',
             'resolvedDate'  => '2019-11-22',
             'assignedTo'    => 'lisi',
             'comment'       => '啊啊飒飒',
-            'buildProject'  => 1,
-            'buildName'     => '版本7.2.5',
-            'createBuild'   => 1
+//            'buildProject'  => 1,
+//            'buildName'     => '版本7.2.5',
+//            'createBuild'   => 1
         );
         $result = $zentao->bugResolve($params);
         return $result;
